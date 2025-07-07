@@ -1,235 +1,118 @@
-# views.py
-
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
-from .serializers import UserSerializer
 from rest_framework import status
-from .models import (
-    Project, Task, PlanningSession, Vote, TaskEstimate, Prediction, Category, Team
+from django.shortcuts import get_object_or_404
+from .controllers import (
+    create_project, update_project, delete_project,
+    create_task, update_task, delete_task,
+    start_planning_session, submit_vote, finalize_estimate,
+    delete_session
 )
-from .serializers import (
-    ProjectSerializer, TaskSerializer, PlanningSessionSerializer, VoteSerializer,
-    TaskEstimateSerializer, PredictionSerializer, CategorySerializer, TeamSerializer
-)
-
-# ---------- CATEGORY ----------
-
-@api_view(['GET', 'POST'])
-def category_list(request):
-    if request.method == 'GET':
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = CategorySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+from .models import Project, Task, PlanningSession
+from .serializers import ProjectSerializer, TaskSerializer, PlanningSessionSerializer, TaskEstimateSerializer
 
 
-# ---------- PROJECT ----------
+# ---- PROJECTS ----
 
-@api_view(['GET', 'POST'])
-def project_list(request):
-    if request.method == 'GET':
-        projects = Project.objects.all()
-        serializer = ProjectSerializer(projects, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = ProjectSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+def add_project(request):
+    project = create_project(request.data)
+    serializer = ProjectSerializer(project)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET', 'PUT'])
-def project_detail(request, pk):
-    try:
-        project = Project.objects.get(pk=pk)
-    except Project.DoesNotExist:
-        return Response({'error': 'Projeto não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = ProjectSerializer(project)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = ProjectSerializer(project, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])
+def list_projects(request):
+    projects = Project.objects.all()
+    serializer = ProjectSerializer(projects, many=True)
+    return Response(serializer.data)
 
 
-# ---------- TASK ----------
-
-@api_view(['GET', 'POST'])
-def task_list(request):
-    if request.method == 'GET':
-        tasks = Task.objects.all()
-        serializer = TaskSerializer(tasks, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = TaskSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['PUT', 'PATCH'])
+def edit_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    updated = update_project(project, request.data)
+    serializer = ProjectSerializer(updated)
+    return Response(serializer.data)
 
 
-@api_view(['GET', 'PUT'])
-def task_detail(request, pk):
-    try:
-        task = Task.objects.get(pk=pk)
-    except Task.DoesNotExist:
-        return Response({'error': 'Tarefa não encontrada.'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = TaskSerializer(task)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = TaskSerializer(task, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['DELETE'])
+def remove_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    delete_project(project)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# ---------- PLANNING SESSION ----------
+# ---- TASKS ----
 
-@api_view(['GET', 'POST'])
-def planning_list(request):
-    if request.method == 'GET':
-        sessions = PlanningSession.objects.all()
-        serializer = PlanningSessionSerializer(sessions, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = PlanningSessionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+def add_task(request, project_id):
+    task = create_task(project_id, request.data)
+    serializer = TaskSerializer(task)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# ---------- VOTE ----------
-
-@api_view(['GET', 'POST'])
-def vote_list(request):
-    if request.method == 'GET':
-        votes = Vote.objects.all()
-        serializer = VoteSerializer(votes, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = VoteSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])
+def list_tasks(request, project_id):
+    tasks = Task.objects.filter(project_id=project_id)
+    serializer = TaskSerializer(tasks, many=True)
+    return Response(serializer.data)
 
 
-# ---------- TASK ESTIMATE ----------
-
-@api_view(['GET', 'POST'])
-def estimate_list(request):
-    if request.method == 'GET':
-        estimates = TaskEstimate.objects.all()
-        serializer = TaskEstimateSerializer(estimates, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = TaskEstimateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['PUT', 'PATCH'])
+def edit_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    updated = update_task(task, request.data)
+    serializer = TaskSerializer(updated)
+    return Response(serializer.data)
 
 
-# ---------- PREDICTION ----------
-
-@api_view(['GET', 'POST'])
-def prediction_list(request):
-    if request.method == 'GET':
-        predictions = Prediction.objects.all()
-        serializer = PredictionSerializer(predictions, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = PredictionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['DELETE'])
+def remove_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    delete_task(task)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# ---------- TEAM ----------
+# ---- PLANNING SESSION ----
 
-@api_view(['GET', 'POST'])
-def team_list(request):
-    if request.method == 'GET':
-        teams = Team.objects.all()
-        serializer = TeamSerializer(teams, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = TeamSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+def start_session(request):
+    project_id = request.data['project_id']
+    team_id = request.data['team_id']
+    task_ids = request.data['task_ids']
+
+    session = start_planning_session(project_id, team_id, task_ids)
+    serializer = PlanningSessionSerializer(session)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET', 'PUT'])
-def team_detail(request, pk):
-    try:
-        team = Team.objects.get(pk=pk)
-    except Team.DoesNotExist:
-        return Response({'error': 'Equipe não encontrada.'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = TeamSerializer(team)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = TeamSerializer(team, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['DELETE'])
+def remove_session(request, session_id):
+    session = get_object_or_404(PlanningSession, id=session_id)
+    delete_session(session)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-User = get_user_model()
+# ---- VOTES ----
+
+@api_view(['POST'])
+def vote_task(request):
+    session_id = request.data['session_id']
+    task_id = request.data['task_id']
+    value = request.data['value']
+
+    vote = submit_vote(session_id, task_id, request.user, value)
+    return Response({"detail": "Voto registrado com sucesso."}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET', 'POST'])
-def user_list(request):
-    if request.method == 'GET':
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# ---- ESTIMATE ----
 
+@api_view(['POST'])
+def finalize_task_estimate(request):
+    session_id = request.data['session_id']
+    task_id = request.data['task_id']
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def user_detail(request, pk):
-    try:
-        user = User.objects.get(pk=pk)
-    except User.DoesNotExist:
-        return Response({'error': 'Usuário não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    estimate = finalize_estimate(session_id, task_id)
+    serializer = TaskEstimateSerializer(estimate)
+    return Response(serializer.data)

@@ -1,35 +1,26 @@
-# urls.py
-
 from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Category
-    path('categories/', views.category_list, name='category_list'),
+    # Projects
+    path('projects/', views.list_projects, name='list_projects'),
+    path('projects/add/', views.add_project, name='add_project'),
+    path('projects/<int:project_id>/edit/', views.edit_project, name='edit_project'),
+    path('projects/<int:project_id>/delete/', views.remove_project, name='remove_project'),
 
-    # Project
-    path('projects/', views.project_list, name='project_list'),
-    path('projects/<int:pk>/', views.project_detail, name='project_detail'),
+    # Tasks
+    path('projects/<int:project_id>/tasks/', views.list_tasks, name='list_tasks'),
+    path('projects/<int:project_id>/tasks/add/', views.add_task, name='add_task'),
+    path('tasks/<int:task_id>/edit/', views.edit_task, name='edit_task'),
+    path('tasks/<int:task_id>/delete/', views.remove_task, name='remove_task'),
 
-    # Task
-    path('tasks/', views.task_list, name='task_list'),
-    path('tasks/<int:pk>/', views.task_detail, name='task_detail'),
+    # Planning Sessions
+    path('planning-sessions/start/', views.start_session, name='start_session'),
+    path('planning-sessions/<int:session_id>/delete/', views.remove_session, name='remove_session'),
 
-    # Planning Session
-    path('planningsessions/', views.planning_list, name='planning_list'),
-
-    # Vote
-    path('votes/', views.vote_list, name='vote_list'),
+    # Votes
+    path('planning-sessions/vote/', views.vote_task, name='vote_task'),
 
     # Estimate
-    path('estimates/', views.estimate_list, name='estimate_list'),
-
-    # Prediction
-    path('predictions/', views.prediction_list, name='prediction_list'),
-
-    # Team
-    path('teams/', views.team_list, name='team_list'),
-    path('teams/<int:pk>/', views.team_detail, name='team_detail'),
-    path('users/', views.user_list, name='user_list'),
-    path('users/<int:pk>/', views.user_detail, name='user_detail'),
+    path('planning-sessions/finalize/', views.finalize_task_estimate, name='finalize_task_estimate'),
 ]
