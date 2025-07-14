@@ -1,16 +1,36 @@
 from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
 
+class User(AbstractUser):
+    phone = models.CharField("Telefone", max_length=20, blank=True, null=True)
+    department = models.CharField("Departamento", max_length=100, blank=True, null=True)
+    is_manager = models.BooleanField("É gerente?", default=False)
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name="custom_user_set",
+        blank=True,
+        verbose_name="groups",
+        help_text="The groups this user belongs to."
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name="custom_user_set",
+        blank=True,
+        verbose_name="user permissions",
+        help_text="Specific permissions for this user."
+    )
+
+    def __str__(self):
+        return self.username
 
 class Category(models.Model):
-    """
-    Categorias genéricas para projetos e tarefas.
-    """
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
-
 
 class Project(models.Model):
     """
