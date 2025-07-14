@@ -14,9 +14,9 @@ docs/sprints/
 
 ### 📊 Resumo Executivo
 - **Status**: ✅ CONCLUÍDA  
-- **Story Points**: 78/78 (100%)  
-- **Velocity**: 78 SP/sprint  
-- **Cobertura de Testes**: 92% (camada de serviços e controladores)  
+- **Story Points**: 55/55  
+- **Velocity**: 55 SP/sprint  
+- **Cobertura de Testes**: 61% (camada de serviços e controladores)  
 
 ### 📋 Entregáveis
 - ✅ Configuração de Ambiente e Linting  
@@ -35,8 +35,8 @@ docs/sprints/
 
 | Sprint | Período           | Status       | SP  | Velocity       |
 |--------|-------------------|--------------|-----|----------------|
-| SP4    | 07/07 - 13/07/2025 | ✅ Concluída | 78  | 78 SP/sprint   |
-| SP5    | 14/07 - 20/07/2025 | 🔄 Planejada | 55  | -              |
+| SP4    | 07/07 - 13/07/2025 | ✅ Concluída | 55  | 55 SP/sprint   |
+| SP5    | 14/07 - 20/07/2025 | 🔄 Planejada | 70  | -              |
 
 ## 🎯 Próximas Sprints
 
