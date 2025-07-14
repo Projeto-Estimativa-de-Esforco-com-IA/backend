@@ -23,4 +23,8 @@ urlpatterns = [
 
     # Estimate
     path('planning-sessions/finalize/', views.finalize_task_estimate, name='finalize_task_estimate'),
+        path('users/', views.list_users, name='list_users'),
+    path('users/add/', views.add_user, name='add_user'),
+    path('users/<int:user_id>/edit/', views.edit_user, name='edit_user'),
+    path('users/<int:user_id>/delete/', views.delete_user, name='delete_user')
 ]

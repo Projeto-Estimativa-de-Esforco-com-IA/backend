@@ -16,9 +16,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source='category.name', read_only=True)
+
     class Meta:
         model = Project
-        fields = '__all__'
+        fields = ['id', 'category', 'name', 'description', 'created_at']
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -103,7 +105,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password']
-
+        
+    def validate_email(self, value):
+        if not value or value.strip() == '':
+            raise serializers.ValidationError("O campo de email não pode ser vazio.")
+        return value
+    
     def create(self, validated_data):
         password = validated_data.pop('password')
         user = User(**validated_data)

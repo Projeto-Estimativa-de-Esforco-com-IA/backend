@@ -1,21 +1,39 @@
 from django.db import transaction
 from django.utils import timezone
-from .models import Project, Task, PlanningSession, Vote, TaskEstimate
-
+from .models import Project, Task, PlanningSession, Vote, TaskEstimate, Category
+from django.contrib.auth.models import User
+from rest_framework import status
 
 def create_project(data):
-    project = Project.objects.create(
-        name=data['name'],
-        description=data.get('description', ''),
-        category=data.get('category')
-    )
-    return project
+    category_id = data.get('category')  # Exemplo: 3
+
+    # Buscar a instância de Category com esse ID
+    try:
+        category_instance = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return status.HTTP_400_BAD_REQUEST
+    
+    if data["name"]:
+        project = Project.objects.create(
+            name=data['name'],
+            description=data.get('description', ''),
+            category=category_instance
+        )
+        return project
+    return status.HTTP_400_BAD_REQUEST
 
 
 def update_project(project, data):
+    category_id = data.get('category')  # Exemplo: 3
+
+    # Buscar a instância de Category com esse ID
+    try:
+        category_instance = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return status.HTTP_400_BAD_REQUEST
     project.name = data.get('name', project.name)
     project.description = data.get('description', project.description)
-    project.category = data.get('category', project.category)
+    project.category = category_instance
     project.save()
     return project
 
@@ -25,20 +43,34 @@ def delete_project(project):
 
 
 def create_task(project_id, data):
+    category_id = data.get('category')  # Exemplo: 3
+
+    # Buscar a instância de Category com esse ID
+    try:
+        category_instance = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return status.HTTP_400_BAD_REQUEST
     project = Project.objects.get(id=project_id)
     task = Task.objects.create(
         project=project,
         title=data['title'],
         description=data.get('description', ''),
-        category=data.get('category')
+        category=category_instance
     )
     return task
 
 
 def update_task(task, data):
+    category_id = data.get('category')  # Exemplo: 3
+
+    # Buscar a instância de Category com esse ID
+    try:
+        category_instance = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return status.HTTP_400_BAD_REQUEST
     task.title = data.get('title', task.title)
     task.description = data.get('description', task.description)
-    task.category = data.get('category', task.category)
+    task.category = category_instance
     task.save()
     return task
 

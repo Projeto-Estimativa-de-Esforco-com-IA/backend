@@ -9,8 +9,8 @@ from .controllers import (
     delete_session
 )
 from .models import Project, Task, PlanningSession
-from .serializers import ProjectSerializer, TaskSerializer, PlanningSessionSerializer, TaskEstimateSerializer
-
+from .serializers import ProjectSerializer, TaskSerializer, PlanningSessionSerializer, TaskEstimateSerializer, UserSerializer
+from django.contrib.auth.models import User
 
 # ---- PROJECTS ----
 
@@ -116,3 +116,32 @@ def finalize_task_estimate(request):
     estimate = finalize_estimate(session_id, task_id)
     serializer = TaskEstimateSerializer(estimate)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def list_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def add_user(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'PATCH'])
+def edit_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    serializer = UserSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
