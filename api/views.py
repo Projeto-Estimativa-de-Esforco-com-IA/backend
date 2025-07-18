@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from drf_yasg.utils import swagger_auto_schema
 from .controllers import (
     create_project, update_project, delete_project,
     create_task, update_task, delete_task,
@@ -9,11 +10,15 @@ from .controllers import (
     delete_session
 )
 from .models import Project, Task, PlanningSession
-from .serializers import ProjectSerializer, TaskSerializer, PlanningSessionSerializer, TaskEstimateSerializer, UserSerializer
+from .serializers import (
+    ProjectSerializer, TaskSerializer, PlanningSessionSerializer,
+    TaskEstimateSerializer, UserSerializer
+)
 from django.contrib.auth.models import User
 
 # ---- PROJECTS ----
 
+@swagger_auto_schema(method='post', request_body=ProjectSerializer)
 @api_view(['POST'])
 def add_project(request):
     project = create_project(request.data)
@@ -28,6 +33,7 @@ def list_projects(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['put', 'patch'], request_body=ProjectSerializer)
 @api_view(['PUT', 'PATCH'])
 def edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
@@ -45,6 +51,7 @@ def remove_project(request, project_id):
 
 # ---- TASKS ----
 
+@swagger_auto_schema(method='post', request_body=TaskSerializer)
 @api_view(['POST'])
 def add_task(request, project_id):
     task = create_task(project_id, request.data)
@@ -59,6 +66,7 @@ def list_tasks(request, project_id):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['put', 'patch'], request_body=TaskSerializer)
 @api_view(['PUT', 'PATCH'])
 def edit_task(request, task_id):
     task = get_object_or_404(Task, id=task_id)
@@ -76,6 +84,7 @@ def remove_task(request, task_id):
 
 # ---- PLANNING SESSION ----
 
+@swagger_auto_schema(method='post', request_body=PlanningSessionSerializer)
 @api_view(['POST'])
 def start_session(request):
     project_id = request.data['project_id']
@@ -96,6 +105,16 @@ def remove_session(request, session_id):
 
 # ---- VOTES ----
 
+from rest_framework import serializers
+from drf_yasg import openapi
+
+class VoteRequestSerializer(serializers.Serializer):
+    session_id = serializers.IntegerField()
+    task_id = serializers.IntegerField()
+    value = serializers.IntegerField()
+
+
+@swagger_auto_schema(method='post', request_body=VoteRequestSerializer)
 @api_view(['POST'])
 def vote_task(request):
     session_id = request.data['session_id']
@@ -108,6 +127,11 @@ def vote_task(request):
 
 # ---- ESTIMATE ----
 
+class FinalizeEstimateRequestSerializer(serializers.Serializer):
+    session_id = serializers.IntegerField()
+    task_id = serializers.IntegerField()
+
+@swagger_auto_schema(method='post', request_body=FinalizeEstimateRequestSerializer)
 @api_view(['POST'])
 def finalize_task_estimate(request):
     session_id = request.data['session_id']
@@ -117,12 +141,17 @@ def finalize_task_estimate(request):
     serializer = TaskEstimateSerializer(estimate)
     return Response(serializer.data)
 
+
+# ---- USERS ----
+
 @api_view(['GET'])
 def list_users(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
+
+@swagger_auto_schema(method='post', request_body=UserSerializer)
 @api_view(['POST'])
 def add_user(request):
     serializer = UserSerializer(data=request.data)
@@ -131,6 +160,8 @@ def add_user(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@swagger_auto_schema(methods=['put', 'patch'], request_body=UserSerializer)
 @api_view(['PUT', 'PATCH'])
 def edit_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -139,6 +170,7 @@ def edit_user(request, user_id):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['DELETE'])
 def delete_user(request, user_id):
