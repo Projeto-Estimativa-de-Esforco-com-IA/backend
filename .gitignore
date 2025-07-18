@@ -1,0 +1,86 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Migrations cache
+**/migrations/__pycache__/
+*.log
+
+# Django database
+*.sqlite3
+*.db
+
+# Environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Static and media files (gerados automaticamente)
+static/
+staticfiles/
+media/
+
+# Test, coverage and cache
+.coverage
+.tox/
+.nox/
+.cache/
+.pytest_cache/
+htmlcov/
+coverage.xml
+nosetests.xml
+junit*.xml
+
+# pip-tools
+*.txt~
+__pypackages__/
+
+# Build artifacts
+*.egg
+*.egg-info/
+dist/
+build/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# VS Code debugging
+.vscode/
+
+# Docker
+*.pid
+
+# mypy
+.mypy_cache/
+.dmypy.json
+
+# Backup files
+*~
+*.bak
+*.tmp
+
+# Sentry CLI auth
+.sentryclirc
+
+# Local config
+*.secret
+*.key
+*.pem
+
+# Celery
+celerybeat-schedule
