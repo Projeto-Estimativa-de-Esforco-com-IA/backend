@@ -1,5 +1,18 @@
 from django.urls import path
 from . import views
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Planning Poker API",
+      default_version='v1',
+      description="Documentação automática da API",
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     # Projects
@@ -26,5 +39,10 @@ urlpatterns = [
         path('users/', views.list_users, name='list_users'),
     path('users/add/', views.add_user, name='add_user'),
     path('users/<int:user_id>/edit/', views.edit_user, name='edit_user'),
-    path('users/<int:user_id>/delete/', views.delete_user, name='delete_user')
+    path('users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
+     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger.yaml', schema_view.without_ui(cache_timeout=0), name='schema-yaml'),
+
 ]
