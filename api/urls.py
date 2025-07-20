@@ -36,7 +36,7 @@ urlpatterns = [
 
     # Estimate
     path('planning-sessions/finalize/', views.finalize_task_estimate, name='finalize_task_estimate'),
-        path('users/', views.list_users, name='list_users'),
+    path('users/', views.list_users, name='list_users'),
     path('users/add/', views.add_user, name='add_user'),
     path('users/<int:user_id>/edit/', views.edit_user, name='edit_user'),
     path('users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
@@ -44,5 +44,8 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger.yaml', schema_view.without_ui(cache_timeout=0), name='schema-yaml'),
+    path('api/register/', views.register_user, name='register_user'),
+    path('api/login/', views.login_view, name='login_user'),
+    path('api/logout/', views.logout_user, name='logout_user'),
 
 ]
