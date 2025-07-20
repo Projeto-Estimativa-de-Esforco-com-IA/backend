@@ -131,3 +131,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ORIGINS = [
     'http://localhost:8080',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+
+AUTHENTICATION_BACKENDS = [
+    'api.authentication.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]

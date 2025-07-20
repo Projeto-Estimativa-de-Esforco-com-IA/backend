@@ -7,8 +7,9 @@ from .models import (
 )
 
 User = get_user_model()
-
-
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
